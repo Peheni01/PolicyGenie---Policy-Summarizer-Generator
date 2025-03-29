@@ -1,1 +1,1 @@
-# PolicyGenie---Policy-Summarizer-Generator
+# PolicyGenie-Policy-Summarizer-Generator
