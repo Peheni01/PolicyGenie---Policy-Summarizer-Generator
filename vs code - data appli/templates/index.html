@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Policy Summarizer & Generator</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <style>
+        body {
+            background-image: url('https://spin.ai/wp-content/uploads/2021/11/IT-Compliance-Explained.webp');
+            background-repeat: no-repeat;
+            background-attachment: fixed;  
+            background-size: cover;
+            font-family: sans-serif;
+            background-color: #98d4d2;
+            margin: 0;
+            padding: 0;
+        }
+        
+        h1, h2 {
+            text-align: center;
+            color: #333;
+        }
+
+        .container {
+            width: 80%;
+            max-width: 800px;
+            margin: 20px auto;
+            background-color: #d3e5e6;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        form {
+            margin-bottom: 20px;
+        }
+
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        button[type="submit"] {
+            background-color: #1e66b8; /* Green */
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #3e8e41;
+        }
+
+        #summary_result, #policy_result {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #061997;
+            border-radius: 4px;
+            background-color: #a5bbf5;
+            white-space: pre-wrap; /* Preserve line breaks and formatting */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>PolicyGenie</h1>
+        <h2>Policy Summarizer & Generator</h2>
+
+        <!-- PDF Summarization -->
+        <h3>Upload PDF for Summarization:</h3>
+        <form id="summarization_form" method="POST" enctype="multipart/form-data">
+            <input type="file" name="pdf_file">
+            <button type="submit">Summarize</button>
+        </form>
+        <div id="summary_result"></div>
+
+        <!-- Policy Generation -->
+        <h3>Policy Generation:</h3>
+        <form id="generation_form" method="POST">
+            Policy URL: <input type="text" name="policy_link"><br>
+            Scenario: <textarea name="scenario"></textarea><br>
+            <button type="submit">Generate Policy</button>
+        </form>
+        <div id="policy_result"></div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            $("#summarization_form").submit(function(event) {
+                event.preventDefault();
+                var formData = new FormData(this);
+                $.ajax({
+                    url: "/summarize",
+                    type: "POST",
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        // Remove asterisks from summary
+                        var cleanedSummary = response.summary.replace(/\*/g, '');
+                        $("#summary_result").html("<p>" + cleanedSummary + "</p>");
+                    },
+                    error: function() {
+                        alert("Error occurred during summarization.");
+                    }
+                });
+            });
+
+            $("#generation_form").submit(function(event) {
+                event.preventDefault();
+                $.ajax({
+                    url: "/generate_policy",
+                    type: "POST",
+                    data: $(this).serialize(),
+                    success: function(response) {
+                        // Remove asterisks from policy
+                        var cleanedPolicy = response.policy.replace(/\*/g, '');
+                        $("#policy_result").html("<p>" + cleanedPolicy + "</p>");
+                    },
+                    error: function() {
+                        alert("Error occurred during policy generation.");
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
